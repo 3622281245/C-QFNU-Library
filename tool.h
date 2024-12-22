@@ -287,7 +287,7 @@ void drawAdminGrid_s(Book books[], int bookCount, int page) {
 	// 格子范围记录
 	SMALL_RECT cellRanges[SIZE * SIZE];
 
-	printf("当前页数：%d/%d  键菜单：s-搜索书籍 n-下一页 p-上一页 q-退出\n\n", page, custom_ceil((double)tmp / (SIZE * SIZE)));
+	printf("当前页数：%d/%d  键菜单：s-搜索书籍 q-退出\n\n", page, custom_ceil((double)tmp / (SIZE * SIZE)));
 	for (int y = 0; y < SIZE; y++) {
 		for (int x = 0; x < SIZE; x++) {
 			int bookIndex =  y * SIZE + x;
@@ -380,13 +380,16 @@ void drawAdminGrid_s(Book books[], int bookCount, int page) {
 						// 鼠标滚轮事件
 						if (mouseEvent.dwEventFlags == MOUSE_WHEELED) {
 							int delta = (SHORT)HIWORD(mouseEvent.dwButtonState) > 0 ? 1 : -1; // 滚轮方向
-							books[index].available += delta;
-							updateAva(books[index], delta);
-							if (books[index].available < 0) {
-								updateAva2(books[index], 0);
-								books[index].available = 0; // 防止库存为负数
+							if (ctrlPressed) {
+								books[index].available += delta;
+								updateAva(books[index], delta);
+								if (books[index].available < 0) {
+									updateAva2(books[index], 0);
+									books[index].available = 0; // 防止库存为负数
+								}
+								changed = 1; // 标记库存已修改
 							}
-							changed = 1; // 标记库存已修改
+
 						}
 
 						// 鼠标左键单击事件
@@ -459,33 +462,6 @@ void drawAdminGrid_s(Book books[], int bookCount, int page) {
 						flok = 0;
 						system("cls"); // 清屏
 						break;
-					} else if (key == 'n' || key == 'N') {
-						if (bookCount < SIZE * SIZE) {
-							clearLine();
-							printf("已经是最后一页了");
-							Sleep(700);
-							clearLine();
-						} else {
-							clearLine();
-							printf("您按下了 'n' 键：下一页");
-							Sleep(200);
-							system("cls");
-							drawAdminGrid(books, bookCount, page + 1);
-						}
-
-					} else if (key == 'p' || key == 'P') {
-						if (page == 1) {
-							clearLine();
-							printf("已经是第一页了");
-							Sleep(700);
-							clearLine();
-						} else {
-							clearLine();
-							printf("您按下了 'p' 键：上一页");
-							Sleep(200);
-							system("cls");
-							drawAdminGrid(books, bookCount, page - 1);
-						}
 					} else if (keyEvent.wVirtualKeyCode == VK_DELETE) {
 // Delete 键被按下
 
@@ -843,7 +819,7 @@ void drawBorrowGrid_s(Book books[], int bookCount, int page) {
 	char color[40], reset[] = "\033[m";
 	// 格子范围记录
 	SMALL_RECT cellRanges[SIZE * SIZE];
-	printf("当前页数：%d/%d  单击图书即可借阅，键菜单：n-下一页 p-上一页 q-退出\n\n", page, custom_ceil((double)tmp / (SIZE * SIZE)));
+	printf("当前页数：%d/%d  单击图书即可借阅，键菜单：s-搜索书籍 q-退出\n\n", page, custom_ceil((double)tmp / (SIZE * SIZE)));
 	for (int y = 0; y < SIZE; y++) {
 		for (int x = 0; x < SIZE; x++) {
 			int bookIndex = y * SIZE + x;
@@ -1021,31 +997,7 @@ void drawBorrowGrid_s(Book books[], int bookCount, int page) {
 						flok = 0;
 						system("cls"); // 清屏
 						break;
-					} else if (key == 'n' || key == 'N') {
-						if (bookCount < SIZE * SIZE) {
-							printf("已经是最后一页了");
-							Sleep(700);
-							clearLine();
-						} else {
-							printf("您按下了 'n' 键：下一页");
-							Sleep(200);
-							system("cls");
-							drawBorrowGrid_s(books, bookCount, page + 1);
-						}
-
-					} else if (key == 'p' || key == 'P') {
-						if (page == 1) {
-							printf("已经是第一页了");
-							Sleep(700);
-							clearLine();
-						} else {
-							printf("您按下了 'p' 键：上一页");
-							Sleep(200);
-							system("cls");
-							drawBorrowGrid_s(books, bookCount, page - 1);
-						}
-
-					}
+					} 
 				}
 			}
 		}
