@@ -2,42 +2,42 @@
 #include <stdio.h>
 #include <string.h>
 #include <conio.h>
- int ctrlPressed = 0;  // ±êÖ¾Î»£¬±íÊ¾Ctrl¼üµÄ×´Ì¬
+ int ctrlPressed = 0;  // æ ‡å¿—ä½ï¼Œè¡¨ç¤ºShifté”®çš„çŠ¶æ€ï¼ŒåŸä½¿ç”¨Ctrlä¼šä¸çª—å£ç¼©æ”¾å†²çª
 #include "book.h"
 #include "user.h"
 #include "tool.h"
 
 
-// ¼àÌıShift¼üµÄÏß³Ìº¯Êı
+// ç›‘å¬Shifté”®çš„çº¿ç¨‹å‡½æ•°
 DWORD WINAPI ListenCtrlKey(LPVOID lpParam) {
 	while (1) {
-		// ¼ì²éShift¼üµÄ×´Ì¬
-		if (GetAsyncKeyState(VK_LSHIFT) & 0x8000) {  // 0x8000±íÊ¾¼ü±»°´ÏÂ
+		// æ£€æŸ¥Shifté”®çš„çŠ¶æ€
+		if (GetAsyncKeyState(VK_LSHIFT) & 0x8000) {  // 0x8000è¡¨ç¤ºé”®è¢«æŒ‰ä¸‹
 			if (!ctrlPressed) {
 				ctrlPressed = 1;
-				//printf("Shift¼ü°´ÏÂ\n");
+				//printf("Shifté”®æŒ‰ä¸‹\n");
 			}
 		} else {
 			if (ctrlPressed) {
 				ctrlPressed = 0;
-				//printf("Shift¼üÌ§Æğ\n");
+				//printf("Shifté”®æŠ¬èµ·\n");
 			}
 		}
-		Sleep(10);  // ÑÓÊ±£¬±ÜÃâÕ¼ÓÃ¹ı¶àµÄCPU×ÊÔ´
+		Sleep(10);  // å»¶æ—¶ï¼Œé¿å…å ç”¨è¿‡å¤šçš„CPUèµ„æº
 	}
 	return 0;
 }
 
-// ¼ì²éµ±Ç°³ÌĞòÊÇ·ñÒÔ¹ÜÀíÔ±È¨ÏŞÔËĞĞ
+// æ£€æŸ¥å½“å‰ç¨‹åºæ˜¯å¦ä»¥ç®¡ç†å‘˜æƒé™è¿è¡Œ
 BOOL IsRunningAsAdmin() {
 	BOOL isAdmin = FALSE;
 	PSID adminGroup = NULL;
 
-	// ´´½¨¹ÜÀíÔ±×éµÄ SID
+	// åˆ›å»ºç®¡ç†å‘˜ç»„çš„ SID
 	SID_IDENTIFIER_AUTHORITY ntAuthority = SECURITY_NT_AUTHORITY;
 	if (AllocateAndInitializeSid(&ntAuthority, 2, SECURITY_BUILTIN_DOMAIN_RID, DOMAIN_ALIAS_RID_ADMINS,
 	                             0, 0, 0, 0, 0, 0, &adminGroup)) {
-		// ¼ì²éµ±Ç°ÁîÅÆÊÇ·ñÊôÓÚ¹ÜÀíÔ±×é
+		// æ£€æŸ¥å½“å‰ä»¤ç‰Œæ˜¯å¦å±äºç®¡ç†å‘˜ç»„
 		CheckTokenMembership(NULL, adminGroup, &isAdmin);
 		FreeSid(adminGroup);
 	}
@@ -45,49 +45,49 @@ BOOL IsRunningAsAdmin() {
 	return isAdmin;
 }
 
-// ÒÔ¹ÜÀíÔ±È¨ÏŞÖØĞÂÆô¶¯³ÌĞò
+// ä»¥ç®¡ç†å‘˜æƒé™é‡æ–°å¯åŠ¨ç¨‹åº
 void RelaunchAsAdmin() {
 	wchar_t szPath[MAX_PATH];
 	if (GetModuleFileNameW(NULL, szPath, MAX_PATH)) {
-		// ÉèÖÃ SHELLEXECUTEINFO ½á¹¹Ìå
+		// è®¾ç½® SHELLEXECUTEINFO ç»“æ„ä½“
 		SHELLEXECUTEINFOW sei = { sizeof(SHELLEXECUTEINFOW) };
-		sei.lpVerb = L"runas"; // Ê¹ÓÃ "runas" ÒÔ¹ÜÀíÔ±Éí·İÔËĞĞ
+		sei.lpVerb = L"runas"; // ä½¿ç”¨ "runas" ä»¥ç®¡ç†å‘˜èº«ä»½è¿è¡Œ
 		sei.lpFile = szPath;
 		sei.hwnd = NULL;
 		sei.nShow = SW_NORMAL;
 		if (!ShellExecuteExW(&sei)) {
-			printf("ÎŞ·¨ÒÔ¹ÜÀíÔ±Éí·İÖØĞÂÆô¶¯³ÌĞò\n");
+			printf("æ— æ³•ä»¥ç®¡ç†å‘˜èº«ä»½é‡æ–°å¯åŠ¨ç¨‹åº\n");
 		}
 	}
 }
 
 int main() {
-	//¼ì²éÊÇ·ñÓĞ¹ÜÀíÔ±È¨ÏŞ
+	//æ£€æŸ¥æ˜¯å¦æœ‰ç®¡ç†å‘˜æƒé™
 	if (!IsRunningAsAdmin()) {
-		printf("µ±Ç°Ã»ÓĞ¹ÜÀíÔ±È¨ÏŞ£¬³¢ÊÔÖØĞÂÒÔ¹ÜÀíÔ±È¨ÏŞÆô¶¯³ÌĞò...\n");
+		printf("å½“å‰æ²¡æœ‰ç®¡ç†å‘˜æƒé™ï¼Œå°è¯•é‡æ–°ä»¥ç®¡ç†å‘˜æƒé™å¯åŠ¨ç¨‹åº...\n");
 		RelaunchAsAdmin();
-		return 0; // ÍË³öµ±Ç°ÊµÀı
+		return 0; // é€€å‡ºå½“å‰å®ä¾‹
 	}
-	// ´´½¨Ïß³Ì¼àÌıShift¼ü
+	// åˆ›å»ºçº¿ç¨‹ç›‘å¬Shifté”®
 	HANDLE hThread = CreateThread(NULL, 0, ListenCtrlKey, NULL, 0, NULL);
 	if (hThread == NULL) {
-		printf("´´½¨Ïß³ÌÊ§°Ü\n");
+		printf("åˆ›å»ºçº¿ç¨‹å¤±è´¥\n");
 		return 1;
 	}
-	SetConsoleFontSize(24, 24);//ÉèÖÃ¿ØÖÆÌ¨×ÖÌå´óĞ¡
-	SetConsoleColor(RGB(255, 87, 51), RGB(104, 44, 8));//ÉèÖÃ¿ØÖÆÌ¨±³¾°ÑÕÉ«£¨Ğ£»ÕRGB£©
+	SetConsoleFontSize(24, 24);//è®¾ç½®æ§åˆ¶å°å­—ä½“å¤§å°
+	SetConsoleColor(RGB(255, 87, 51), RGB(104, 44, 8));//è®¾ç½®æ§åˆ¶å°èƒŒæ™¯é¢œè‰²ï¼ˆæ ¡å¾½RGBï¼‰
 	SetTextColor1(14);
-	system("title QFNU Library");//±êÌâ
-	disableQuickEditMode();//½ûÓÃµ¥»÷Ñ¡Ôñ
-	disableResize();//½ûÓÃ´°¿Ú´óĞ¡µ÷Õû
-	disableCursor();//½ûÓÃÊäÈë¹â±ê
-	disableScrollbars();//½ûÓÃ¹ö¶¯Ìõ
+	system("title QFNU Library");//æ ‡é¢˜
+	disableQuickEditMode();//ç¦ç”¨å•å‡»é€‰æ‹©
+	disableResize();//ç¦ç”¨çª—å£å¤§å°è°ƒæ•´
+	disableCursor();//ç¦ç”¨è¾“å…¥å…‰æ ‡
+	disableScrollbars();//ç¦ç”¨æ»šåŠ¨æ¡
 
 	const char *menuOptions[] = {
-		"ÓÃ»§µÇÂ¼",
-		"×¢²áÕËºÅ",
-		"¹ÜÀíÔ±µÇÂ¼",
-		"ÍË³öÏµÍ³"
+		"ç”¨æˆ·ç™»å½•",
+		"æ³¨å†Œè´¦å·",
+		"ç®¡ç†å‘˜ç™»å½•",
+		"é€€å‡ºç³»ç»Ÿ"
 	};
 	int optionCount = sizeof(menuOptions) / sizeof(menuOptions[0]);
 
@@ -106,12 +106,12 @@ int main() {
 				break;
 			case 3:
 				system("cls");
-				printCentered("¸ĞĞ»Ê¹ÓÃÍ¼Êé¹ÜÀíÏµÍ³£¬ÔÙ¼û£¡", 0);
+				printCentered("æ„Ÿè°¢ä½¿ç”¨å›¾ä¹¦ç®¡ç†ç³»ç»Ÿï¼Œå†è§ï¼", 0);
 				Sleep(2000);
-				enableCursor();  // »Ö¸´¹â±ê
+				enableCursor();  // æ¢å¤å…‰æ ‡
 				return 0;
 		}
 	}
-	// ÇåÀí×ÊÔ´
+	// æ¸…ç†èµ„æº
 	CloseHandle(hThread);
 }
